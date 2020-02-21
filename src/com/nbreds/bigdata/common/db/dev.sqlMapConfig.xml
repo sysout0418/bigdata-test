@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+<configuration>
+
+	<properties resource="com/nbreds/bigdata/common/config/dev.sqlMapConfig.properties" />
+	
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+
+				<!-- 주어진 시간에 존재할 수 있는 활성화된(사용중인) 커넥션의 수. 디폴트는 10이다. -->
+				<property name="poolMaximumActiveConnections" value="100" />
+				<!-- 주어진 시간에 존재할 수 있는 유휴 커넥션의 수 -->
+				<property name="poolMaximumIdleConnections" value="10" />
+				<!-- 강제로 리턴되기 전에 풀에서 “체크아웃” 될 수 있는 커넥션의 시간. 디폴트는 20000ms(20 초) -->
+				<property name="poolMaximumCheckoutTime" value="5000" />
+				<!-- 풀이 로그 상태를 출력하고 비정상적으로 긴 경우 커넥션을 다시 얻을려고 시도하는 로우 레벨 설정. 디폴트는 20000ms(20초) -->
+				<property name="poolTimeToWait" value="5000" />
+
+				<!-- MariaDB/MySQL Session 끊김 처리 -->
+				<!-- poolPingConnectionsNotUsedFor의 millisecond동안 해당 connection이 전혀 사용되지 않았다면, 서버로 poolPingQuery를 날려주어, connection을 유지 -->
+				<property name="poolPingConnectionsNotUsedFor" value="7200000" />
+				<property name="poolPingEnabled" value="true" />
+				<property name="poolPingQuery" value="select 1" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- common -->
+		<mapper resource="com/nbreds/bigdata/common/sqlmap/Common.xml" />
+		<mapper resource="com/nbreds/bigdata/sms/sqlmap/Sms.xml" />
+		<mapper resource="com/nbreds/bigdata/test/sqlmap/Test.xml" />
+		
+		<!-- job -->
+		<mapper resource="com/nbreds/bigdata/scanerror/sqlmap/ScanError.xml" />
+		<mapper resource="com/nbreds/bigdata/counterror/sqlmap/CountError.xml" />
+		<mapper resource="com/nbreds/bigdata/countip/sqlmap/CountIP.xml" />
+		<mapper resource="com/nbreds/bigdata/ipstatistics/sqlmap/IPStatistics.xml" />
+		<mapper resource="com/nbreds/bigdata/errorstatistics/sqlmap/ErrorStatistics.xml" />
+	</mappers>
+	
+</configuration>

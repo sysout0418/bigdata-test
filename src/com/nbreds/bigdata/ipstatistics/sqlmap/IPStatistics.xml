@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="IPStatistics">
+
+	<select id="selectIPStatistics" parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT *
+		  FROM tb_fds_ip_statistics
+	</select>
+
+
+	<!-- IP 통계 입력 -->
+	<insert id="insertIPStatistics" parameterType="com.nbreds.bigdata.ipstatistics.vo.IPStatisticsVo">
+		INSERT INTO tb_fds_ip_statistics (
+				 stat_type
+				,reg_date
+				,ip_address
+				,service_type
+				,ip_count
+				,inserted_date
+				,inserted_id 
+		)
+		<choose>
+			<when test='stat_type.equals("T")'>
+			VALUES (
+				 #{stat_type}
+				,#{reg_date}
+				,#{ip_address}
+				,#{service_type}
+				,#{ip_count}
+				,now()
+				,#{inserted_id}
+			)
+			</when>
+			<otherwise>
+			SELECT
+				 #{stat_type} AS STAT_TYPE
+				,REG_DATE
+				,IP_ADDRESS
+				,'U'
+				,IP_COUNT
+				,now()
+				,'Master'
+			FROM (
+				<choose>
+					<when test='stat_type.equals("D")'>
+					SELECT LEFT(REG_DATE, 8) AS REG_DATE, IP_ADDRESS, SUM(IP_COUNT) AS IP_COUNT
+					  FROM tb_fds_ip_statistics
+					 WHERE LEFT(REG_DATE, 8) = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 DAY), '%Y%m%d')
+					   AND STAT_TYPE = 'T'
+					 GROUP BY LEFT(REG_DATE, 8), IP_ADDRESS
+					</when>
+					<when test='stat_type.equals("W")'>
+					SELECT CONCAT(LEFT(REG_DATE, 4), #{specific_week}) AS REG_DATE, IP_ADDRESS, SUM(IP_COUNT) AS IP_COUNT
+					  FROM tb_fds_ip_statistics
+					 WHERE REG_DATE BETWEEN #{start_date} AND #{end_date}
+					   AND STAT_TYPE = 'D'
+					 GROUP BY LEFT(REG_DATE, 4), IP_ADDRESS
+					</when>
+					<when test='stat_type.equals("M")'>
+					SELECT LEFT(REG_DATE, 6) AS REG_DATE, IP_ADDRESS, SUM(IP_COUNT) AS IP_COUNT
+					  FROM tb_fds_ip_statistics
+					 WHERE LEFT(REG_DATE, 6) = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 MONTH), '%Y%m')
+					   AND STAT_TYPE = 'D'
+					 GROUP BY LEFT(REG_DATE, 6), IP_ADDRESS
+					</when>
+					<otherwise>
+					SELECT LEFT(REG_DATE, 4) AS REG_DATE, IP_ADDRESS, SUM(IP_COUNT) AS IP_COUNT
+					  FROM tb_fds_ip_statistics
+					 WHERE LEFT(REG_DATE, 4) = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL -1 YEAR), '%Y')
+					   AND STAT_TYPE = 'M'
+					 GROUP BY LEFT(REG_DATE, 4), IP_ADDRESS
+					</otherwise>
+				</choose>
+			) A
+			</otherwise>
+		</choose>
+	</insert>
+
+</mapper>

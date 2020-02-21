@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CountIP">
+
+	<select id="checkCountIP" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT IP.*
+		  FROM (
+				SELECT A.start_ip_address, A.end_ip_address, 
+					   case when B.use_time_yn = 'N' then '0000' else B.start_time end as start_time, 
+					   case when B.use_time_yn = 'N' then '2359' else B.end_time end as end_time, 
+					   B.week_num, B.use_time_yn, 
+					   B.alarm_count, B.alarm_level, B.alarm_content, 
+					   C.alarm_name, C.mdn_array
+				  FROM tb_fds_ip_info A, tb_fds_ip_policy B, tb_fds_alarm_mdn_police C
+				 WHERE A.seq = B.ip_seq
+				   AND B.alarm_level = C.alarm_level
+				   AND A.isdelete_yn = 'N' 
+		 ) IP
+		 WHERE IP.start_time <![CDATA[<=]]> #{start_time} AND IP.end_time >= #{end_time}
+		   AND IP.week_num = #{week_num}
+		   AND (
+		<foreach collection="COUNT_IP_RESULT" item="tuple" separator="OR">
+		   IP.start_ip_address <![CDATA[<=]]> #{tuple._1} AND IP.end_ip_address >= #{tuple._1} AND IP.alarm_count <![CDATA[<=]]> #{tuple._2}
+		</foreach>
+		)
+	</select>
+
+</mapper>

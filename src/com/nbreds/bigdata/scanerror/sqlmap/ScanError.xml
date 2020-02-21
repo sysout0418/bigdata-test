@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ScanError">
+
+	<select id="getErrorScanRange" resultType="String">
+		SELECT COMMON_NAME
+		FROM   TB_FDS_COMMON
+		WHERE  L_CODE = 'COMMON_CODE'
+		AND    M_CODE = 'FDS'
+		AND    S_CODE IN ('ERROR_LOG_SCAN_RANGE')
+	</select>
+
+</mapper>

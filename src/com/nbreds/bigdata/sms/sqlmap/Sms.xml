@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Sms">
+
+	<insert id="insertSms" parameterType="java.util.Map">
+		INSERT INTO tb_fds_sms (
+			SEND_MDN
+			, RECEVIE_MDN
+			, CONTENT
+			, TITLE
+			, INSERTED_DATE
+			, ISDELETE_YN
+			, INSERTED_ID
+			, SEND_DATE
+			, SEND_COUNT
+			, SMS_STATUS
+			, ERROR_DESC
+		) VALUES (
+			'114'
+			, #{RECEIVE_MDN}
+			, #{CONTENT}
+			, #{TITLE}
+			, now()
+			, 'N'
+			, 'MASTER'
+			, null
+			, 0
+			, 1
+			, ''
+		)
+	</insert>
+	
+	<select id="getSmsList" resultType="com.nbreds.bigdata.sms.vo.SmsVo">
+		SELECT SEND_MDN, GROUP_CONCAT('82', SUBSTRING(RECEVIE_MDN, 2, LENGTH(RECEVIE_MDN))) AS RECEVIE_MDN, CONTENT, TITLE
+		FROM tb_fds_sms
+		WHERE ISDELETE_YN = 'N'
+		AND DATE(INSERTED_DATE) = DATE(NOW())
+		AND SMS_STATUS = '1'
+		GROUP BY SEND_MDN, CONTENT, TITLE
+	</select>
+
+</mapper>

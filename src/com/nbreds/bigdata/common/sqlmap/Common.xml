@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="Common">
+
+	<select id="getProgerty" resultType="String" parameterType="String">
+		SELECT COMMON_NAME
+          FROM TB_FDS_COMMON A
+         WHERE A.L_CODE = 'PROPERTY'
+	</select>
+	
+	
+	<select id="getSaveErrorLogConfig" resultType="java.util.HashMap">
+		SELECT GROUP_CONCAT(A.ERROR_LOG_SAVE_DIR SEPARATOR '')     ERROR_LOG_SAVE_DIR
+			  ,GROUP_CONCAT(A.ACCESSLOG_ERROR_PREFIX SEPARATOR '') ACCESSLOG_ERROR_PREFIX
+			  ,GROUP_CONCAT(A.ACCESSLOG_ERROR_SUFFIX SEPARATOR '') ACCESSLOG_ERROR_SUFFIX
+			  ,GROUP_CONCAT(A.WASLOG_ERROR_PREFIX SEPARATOR '')    WASLOG_ERROR_PREFIX
+			  ,GROUP_CONCAT(A.WASLOG_ERROR_SUFFIX SEPARATOR '')    WASLOG_ERROR_SUFFIX
+		FROM (
+				SELECT CASE WHEN S_CODE = 'ERROR_LOG_SAVE_DIR'
+							THEN COMMON_NAME
+							ELSE ''
+					   END ERROR_LOG_SAVE_DIR
+					  ,CASE WHEN S_CODE = 'ACCESSLOG_ERROR_PREFIX'
+							THEN COMMON_NAME
+							ELSE ''
+					   END ACCESSLOG_ERROR_PREFIX
+					  ,CASE WHEN S_CODE = 'ACCESSLOG_ERROR_SUFFIX'
+							THEN COMMON_NAME
+							ELSE ''
+					   END ACCESSLOG_ERROR_SUFFIX
+					  ,CASE WHEN S_CODE = 'WASLOG_ERROR_PREFIX'
+							THEN COMMON_NAME
+							ELSE ''
+					   END WASLOG_ERROR_PREFIX
+					  ,CASE WHEN S_CODE = 'WASLOG_ERROR_SUFFIX'
+							THEN COMMON_NAME
+							ELSE ''
+					   END WASLOG_ERROR_SUFFIX
+					  ,'1' GROUP_NUM
+				FROM   tb_fds_common
+				WHERE  L_CODE = 'COMMON_CODE'
+				AND    M_CODE = 'FDS'
+				AND    S_CODE IN ('ACCESSLOG_ERROR_PREFIX', 'ACCESSLOG_ERROR_SUFFIX', 'WASLOG_ERROR_PREFIX', 'WASLOG_ERROR_SUFFIX', 'ERROR_LOG_SAVE_DIR')
+			 ) A
+		 GROUP BY A.GROUP_NUM
+	</select>
+	
+</mapper>

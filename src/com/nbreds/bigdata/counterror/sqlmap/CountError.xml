@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CountError">
+	
+	<select id="checkCountError" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT A.ERROR_CODE, B.ALARM_NAME, A.ALARM_CONTENT, B.MDN_ARRAY
+		FROM tb_fds_error A
+		JOIN tb_fds_alarm_mdn_police B
+		ON A.ALARM_LEVEL = B.ALARM_LEVEL
+		WHERE ISDELETE_YN = 'N'
+		AND EXISTS (
+			SELECT ERROR_CODE, ALARM_COUNT
+			FROM tb_fds_error C
+			WHERE A.ERROR_CODE = C.ERROR_CODE
+			AND (
+				<foreach collection="COUNT_ERROR_RESULT" item="tuple" separator="OR">
+				ERROR_CODE = #{tuple._1} AND ALARM_COUNT <![CDATA[<=]]>#{tuple._2}
+				</foreach>
+			)
+		)
+	</select>
+
+</mapper> 
